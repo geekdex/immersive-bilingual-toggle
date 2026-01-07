@@ -1,45 +1,31 @@
 /**
  * Immersive Bilingual Toggle Library
- * A universal JavaScript library for bilingual text toggling
+ * A simple JavaScript library for bilingual text toggling
  */
 
 class ImmersiveBilingual {
   constructor(options = {}) {
     this.options = {
       translationData: null,
-      translationUrl: null,
-      toggleSelector: '.bilingual-toggle',
-      textSelector: '[data-translate]',
-      showOriginalClass: 'show-original',
-      showTranslationClass: 'show-translation',
-      toggleButtonText: {
-        showOriginal: '显示原文',
-        showTranslation: '显示译文'
-      },
-      autoInject: true,
-      clickToToggle: true,
+      defaultMode: 'translation', // 默认显示译文（中文）
       ...options
     };
 
     this.translationData = {};
-    this.currentMode = 'original'; // 默认显示原文
     this.initialized = false;
 
-    if (this.options.autoInject) {
+    if (this.options.translationData) {
       this.init();
     }
   }
 
-  async init() {
+  init() {
     if (this.initialized) return;
 
     try {
-      await this.loadTranslationData();
+      this.loadTranslationData();
       this.injectStyles();
       this.processTextNodes();
-      this.setupToggleButtons();
-      this.setupClickToggle();
-      this.setInitialState(); // 设置初始状态
       this.initialized = true;
       console.log('Immersive Bilingual initialized successfully');
     } catch (error) {
@@ -47,28 +33,11 @@ class ImmersiveBilingual {
     }
   }
 
-  async loadTranslationData() {
+  loadTranslationData() {
     if (this.options.translationData) {
       this.translationData = this.options.translationData;
-      return;
-    }
-
-    if (this.options.translationUrl) {
-      try {
-        const response = await fetch(this.options.translationUrl);
-        this.translationData = await response.json();
-      } catch (error) {
-        console.error('Failed to load translation data:', error);
-        throw error;
-      }
     } else {
-      // Try to load from default location
-      try {
-        const response = await fetch('./translations.json');
-        this.translationData = await response.json();
-      } catch (error) {
-        console.warn('No translation data found. Please provide translationData or translationUrl option.');
-      }
+      console.warn('No translation data found. Please provide translationData option.');
     }
   }
 
@@ -76,14 +45,11 @@ class ImmersiveBilingual {
     const styles = `
       .bilingual-container {
         position: relative;
-      }
-      
-      .bilingual-text {
         cursor: pointer;
-        transition: opacity 0.3s ease;
+        transition: background-color 0.2s ease;
       }
       
-      .bilingual-text:hover {
+      .bilingual-container:hover {
         background-color: rgba(197, 61, 86, 0.1);
         border-radius: 2px;
       }
@@ -99,57 +65,21 @@ class ImmersiveBilingual {
         padding-left: 12px;
         color: #2c3e50;
         font-style: italic;
-        display: none; /* 默认隐藏译文 */
       }
       
-      .show-original .bilingual-translation {
+      .bilingual-original {
+        color: #666;
+        font-size: 0.9em;
         display: none;
       }
       
-      .show-translation .bilingual-original {
+      /* 点击切换状态 */
+      .bilingual-container.show-original .bilingual-original {
+        display: block;
+      }
+      
+      .bilingual-container.show-original .bilingual-translation {
         display: none;
-      }
-      
-      .show-translation .bilingual-translation {
-        display: block; /* 翻译模式下显示译文 */
-      }
-      
-      .bilingual-toggle {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #C53D56;
-        color: white;
-        border: none;
-        padding: 10px 15px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 14px;
-        z-index: 9999;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        transition: background-color 0.3s ease;
-      }
-      
-      .bilingual-toggle:hover {
-        background: #a02d42;
-      }
-      
-      .bilingual-status {
-        position: fixed;
-        top: 70px;
-        right: 20px;
-        background: rgba(0,0,0,0.8);
-        color: white;
-        padding: 5px 10px;
-        border-radius: 3px;
-        font-size: 12px;
-        z-index: 9998;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-      }
-      
-      .bilingual-status.show {
-        opacity: 1;
       }
     `;
 
@@ -160,7 +90,7 @@ class ImmersiveBilingual {
 
   processTextNodes() {
     // Process elements with data-translate attribute
-    const elements = document.querySelectorAll(this.options.textSelector);
+    const elements = document.querySelectorAll('[data-translate]');
     
     elements.forEach(element => {
       const key = element.getAttribute('data-translate');
@@ -212,10 +142,8 @@ class ImmersiveBilingual {
 
   shouldSkipElement(element) {
     const skipTags = ['BUTTON', 'INPUT', 'SELECT', 'TEXTAREA', 'SCRIPT', 'STYLE'];
-    const skipClasses = ['bilingual-toggle', 'bilingual-status'];
-    
     return skipTags.includes(element.tagName) || 
-           skipClasses.some(cls => element.classList?.contains(cls));
+           element.classList?.contains('bilingual-container');
   }
 
   findTranslation(text) {
@@ -242,7 +170,7 @@ class ImmersiveBilingual {
     }
 
     const container = document.createElement('div');
-    container.className = 'bilingual-container bilingual-text';
+    container.className = 'bilingual-container';
     
     const original = document.createElement('span');
     original.className = 'bilingual-original';
@@ -259,109 +187,11 @@ class ImmersiveBilingual {
     element.innerHTML = '';
     element.appendChild(container);
     
-    // Add click handler for individual toggle
-    if (this.options.clickToToggle) {
-      container.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.toggleSingleElement(container);
-      });
-    }
-  }
-
-  setupToggleButtons() {
-    // Create main toggle button
-    const toggleButton = document.createElement('button');
-    toggleButton.className = 'bilingual-toggle';
-    toggleButton.textContent = this.options.toggleButtonText.showTranslation; // 初始显示"显示译文"
-    toggleButton.addEventListener('click', () => this.toggleAll());
-    document.body.appendChild(toggleButton);
-
-    // Create status indicator
-    const statusDiv = document.createElement('div');
-    statusDiv.className = 'bilingual-status';
-    statusDiv.textContent = '当前显示: 原文'; // 初始状态显示原文
-    document.body.appendChild(statusDiv);
-
-    this.toggleButton = toggleButton;
-    this.statusDiv = statusDiv;
-  }
-
-  setupClickToggle() {
-    if (!this.options.clickToToggle) return;
-
-    // Add global click handler info
-    const info = document.createElement('div');
-    info.style.cssText = `
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: rgba(0,0,0,0.7);
-      color: white;
-      padding: 8px 12px;
-      border-radius: 4px;
-      font-size: 12px;
-      z-index: 9997;
-    `;
-    info.textContent = '点击文本切换原文/译文';
-    document.body.appendChild(info);
-
-    // Auto-hide after 5 seconds
-    setTimeout(() => {
-      info.style.opacity = '0';
-      setTimeout(() => info.remove(), 300);
-    }, 5000);
-  }
-
-  setInitialState() {
-    // 设置初始状态：显示原文，隐藏译文
-    document.body.classList.remove(this.options.showOriginalClass, this.options.showTranslationClass);
-    
-    // 更新按钮文本和状态显示
-    if (this.toggleButton) {
-      this.toggleButton.textContent = this.options.toggleButtonText.showTranslation;
-    }
-    if (this.statusDiv) {
-      this.statusDiv.textContent = '当前显示: 原文';
-    }
-  }
-
-  toggleAll() {
-    this.currentMode = this.currentMode === 'translation' ? 'original' : 'translation';
-    
-    document.body.classList.remove(this.options.showOriginalClass, this.options.showTranslationClass);
-    
-    if (this.currentMode === 'original') {
-      document.body.classList.add(this.options.showOriginalClass);
-      this.toggleButton.textContent = this.options.toggleButtonText.showTranslation;
-      this.statusDiv.textContent = '当前显示: 原文';
-    } else {
-      document.body.classList.add(this.options.showTranslationClass);
-      this.toggleButton.textContent = this.options.toggleButtonText.showOriginal;
-      this.statusDiv.textContent = '当前显示: 译文';
-    }
-
-    this.showStatus();
-  }
-
-  toggleSingleElement(element) {
-    const isShowingOriginal = element.classList.contains('show-original-single');
-    
-    if (isShowingOriginal) {
-      element.classList.remove('show-original-single');
-      element.querySelector('.bilingual-translation').style.display = 'block';
-      element.querySelector('.bilingual-original').style.display = 'block';
-    } else {
-      element.classList.add('show-original-single');
-      element.querySelector('.bilingual-translation').style.display = 'none';
-      element.querySelector('.bilingual-original').style.display = 'block';
-    }
-  }
-
-  showStatus() {
-    this.statusDiv.classList.add('show');
-    setTimeout(() => {
-      this.statusDiv.classList.remove('show');
-    }, 2000);
+    // Add click handler for toggle
+    container.addEventListener('click', (e) => {
+      e.stopPropagation();
+      container.classList.toggle('show-original');
+    });
   }
 
   // Public API methods
@@ -377,11 +207,13 @@ class ImmersiveBilingual {
   }
 
   destroy() {
-    // Remove injected elements
-    document.querySelectorAll('.bilingual-toggle, .bilingual-status').forEach(el => el.remove());
-    
-    // Remove classes
-    document.body.classList.remove(this.options.showOriginalClass, this.options.showTranslationClass);
+    // Remove bilingual containers
+    document.querySelectorAll('.bilingual-container').forEach(el => {
+      const original = el.querySelector('.bilingual-original');
+      if (original && el.parentNode) {
+        el.parentNode.innerHTML = original.textContent;
+      }
+    });
     
     this.initialized = false;
   }

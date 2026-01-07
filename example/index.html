@@ -1,161 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Basic Demo - Immersive Bilingual Toggle</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            line-height: 1.6;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            color: #333;
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 10px;
-        }
-        
-        .nav-links {
-            text-align: center;
-            margin: 20px 0;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-        
-        .nav-links a {
-            display: inline-block;
-            margin: 5px 10px;
-            padding: 8px 16px;
-            background: #3498db;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        
-        .nav-links a:hover {
-            background: #2980b9;
-        }
-        
-        .section {
-            margin: 30px 0;
-            padding: 20px;
-            border: 1px solid #e1e8ed;
-            border-radius: 8px;
-            background: #f8f9fa;
-        }
-        
-        .section h2 {
-            margin-top: 0;
-            color: #2c3e50;
-        }
-        
-        .code-block {
-            background: #2d3748;
-            color: #e2e8f0;
-            padding: 15px;
-            border-radius: 5px;
-            font-family: 'Monaco', 'Consolas', monospace;
-            font-size: 14px;
-            overflow-x: auto;
-        }
-        
-        .highlight {
-            background: #fff3cd;
-            padding: 15px;
-            border-left: 4px solid #ffc107;
-            margin: 15px 0;
-        }
-        
-        .demo-text {
-            font-size: 16px;
-            line-height: 1.8;
-        }
-    </style>
+    <title>沉浸式双语切换示例</title>
 </head>
 <body>
-    <div class="header">
-        <h1 data-translate="Documentation">Documentation</h1>
-        <p data-translate="Welcome to our documentation">Welcome to our documentation</p>
-    </div>
+    <h1>JavaScript Documentation</h1>
+    
+    <h2>Introduction</h2>
+    <p>JavaScript is a programming language that adds interactivity to your website.</p>
+    
+    <h2>Variables</h2>
+    <p>Variables are containers for storing data values.</p>
+    <p>In JavaScript, you can declare variables using var, let, or const.</p>
+    
+    <h2>Functions</h2>
+    <p>Functions are blocks of code designed to perform a particular task.</p>
+    <p>A function is executed when something invokes it.</p>
 
-    <div class="nav-links">
-        <a href="../">← 返回首页</a>
-        <a href="./advanced.html">高级演示</a>
-        <a href="./test-fixed.html">修复测试</a>
-        <a href="./cdn-example.html">CDN 示例</a>
-    </div>
-
-    <div class="section">
-        <h2 data-translate="Getting Started">Getting Started</h2>
-        <p class="demo-text" data-translate="This is a comprehensive guide">This is a comprehensive guide</p>
-        <p class="demo-text" data-translate="Follow the steps below">Follow the steps below</p>
-        
-        <div class="highlight">
-            <strong>使用说明:</strong> <span data-translate="Click on any text to toggle between original and translated versions">Click on any text to toggle between original and translated versions</span>
-        </div>
-    </div>
-
-    <div class="section">
-        <h2 data-translate="Installation">Installation</h2>
-        <p data-translate="You can also use the toggle button in the top-right corner">You can also use the toggle button in the top-right corner</p>
-        
-        <div class="code-block">
-&lt;script src="../dist/immersive-bilingual.min.js"&gt;&lt;/script&gt;
-&lt;script&gt;
-  window.ImmersiveBilingualConfig = {
-    translationUrl: './translations.json'
-  };
-&lt;/script&gt;
-        </div>
-    </div>
-
-    <div class="section">
-        <h2 data-translate="Configuration">Configuration</h2>
-        <p data-translate="The library automatically detects text and applies translations">The library automatically detects text and applies translations</p>
-        
-        <ul>
-            <li data-translate="API Reference">API Reference</li>
-            <li data-translate="Examples">Examples</li>
-            <li data-translate="Best Practices">Best Practices</li>
-            <li data-translate="Troubleshooting">Troubleshooting</li>
-        </ul>
-    </div>
-
-    <div class="section">
-        <h2 data-translate="Advanced Usage">Advanced Usage</h2>
-        <p>Some text without translation to show mixed content behavior.</p>
-        <p data-translate="Performance">Performance</p>
-        <p data-translate="Security">Security</p>
-        <p data-translate="Testing">Testing</p>
-    </div>
-
-    <!-- Include the library -->
+    <!-- 引入翻译配置 -->
+    <script src="translations.js"></script>
+    
+    <!-- 引入沉浸式双语库 -->
     <script src="../dist/immersive-bilingual.min.js"></script>
-    <script>
-        // Configuration
-        window.ImmersiveBilingualConfig = {
-            translationUrl: './translations.json',
-            clickToToggle: true,
-            toggleButtonText: {
-                showOriginal: '显示原文 EN',
-                showTranslation: '显示译文 中文'
-            }
-        };
-        
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            new ImmersiveBilingual(window.ImmersiveBilingualConfig);
-        });
-    </script>
 </body>
 </html>

@@ -6,13 +6,26 @@
   "scripts": {
     "build": "webpack --mode production",
     "dev": "webpack --mode development --watch",
-    "test": "open example/index.html"
+    "test": "echo 'Open example/test-simple.html in browser to test'"
   },
-  "keywords": ["translation", "bilingual", "immersive", "i18n", "toggle"],
+  "keywords": ["translation", "bilingual", "immersive", "i18n", "toggle", "chinese", "english"],
   "author": "Your Name",
   "license": "MIT",
   "devDependencies": {
     "webpack": "^5.89.0",
     "webpack-cli": "^5.1.4"
-  }
+  },
+  "files": [
+    "dist/",
+    "src/",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/geekdex/immersive-bilingual-toggle.git"
+  },
+  "bugs": {
+    "url": "https://github.com/geekdex/immersive-bilingual-toggle/issues"
+  },
+  "homepage": "https://github.com/geekdex/immersive-bilingual-toggle#readme"
 }
