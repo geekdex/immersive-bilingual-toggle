@@ -44,10 +44,8 @@ class ImmersiveBilingual {
   injectStyles() {
     const styles = `
       .bilingual-container {
-        position: relative;
         cursor: pointer;
-        transition: all 0.2s ease;
-        padding: 8px 0;
+        transition: background-color 0.2s ease;
       }
       
       .bilingual-container:hover {
@@ -57,9 +55,8 @@ class ImmersiveBilingual {
       
       .bilingual-translation {
         display: block;
-        color: #333;
-        line-height: 1.6;
         margin: 0;
+        padding: 0;
       }
       
       .bilingual-original {
