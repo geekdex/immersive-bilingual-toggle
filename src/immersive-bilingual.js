@@ -46,40 +46,35 @@ class ImmersiveBilingual {
       .bilingual-container {
         position: relative;
         cursor: pointer;
-        transition: background-color 0.2s ease;
+        transition: all 0.2s ease;
+        padding: 8px 0;
       }
       
       .bilingual-container:hover {
-        background-color: rgba(197, 61, 86, 0.1);
-        border-radius: 2px;
+        background-color: rgba(197, 61, 86, 0.05);
+        border-radius: 4px;
       }
       
-      .bilingual-original,
       .bilingual-translation {
         display: block;
-        margin: 4px 0;
-      }
-      
-      .bilingual-translation {
-        border-left: 4px solid #C53D56;
-        padding-left: 12px;
-        color: #2c3e50;
-        font-style: italic;
+        color: #333;
+        line-height: 1.6;
+        margin: 0;
       }
       
       .bilingual-original {
+        display: none;
         color: #666;
         font-size: 0.9em;
-        display: none;
+        line-height: 1.5;
+        margin: 8px 0 0 0;
+        padding-top: 8px;
+        border-top: 1px dashed #ccc;
       }
       
-      /* 点击切换状态 */
+      /* 点击后显示原文 */
       .bilingual-container.show-original .bilingual-original {
         display: block;
-      }
-      
-      .bilingual-container.show-original .bilingual-translation {
-        display: none;
       }
     `;
 
@@ -172,16 +167,17 @@ class ImmersiveBilingual {
     const container = document.createElement('div');
     container.className = 'bilingual-container';
     
-    const original = document.createElement('span');
-    original.className = 'bilingual-original';
-    original.textContent = originalText;
-    
-    const translation = document.createElement('span');
+    const translation = document.createElement('div');
     translation.className = 'bilingual-translation';
     translation.textContent = translationText;
     
-    container.appendChild(original);
+    const original = document.createElement('div');
+    original.className = 'bilingual-original';
+    original.textContent = originalText;
+    
+    // 先添加译文（上面），再添加原文（下面）
     container.appendChild(translation);
+    container.appendChild(original);
     
     // Replace original element content
     element.innerHTML = '';
