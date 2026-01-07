@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immersive Bilingual Toggle - 沉浸式双语切换库</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .hero {
+            text-align: center;
+            color: white;
+            padding: 60px 20px;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+        
+        .features {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin: 40px 0;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .features h2 {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #2c3e50;
+            font-size: 2.5rem;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .feature-card {
+            padding: 30px;
+            border-radius: 15px;
+            background: #f8f9fa;
+            border-left: 5px solid #C53D56;
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-card h3 {
+            color: #C53D56;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .demo-links {
+            text-align: center;
+            margin: 40px 0;
+        }
+        
+        .demo-button {
+            display: inline-block;
+            background: #C53D56;
+            color: white;
+            text-decoration: none;
+            padding: 15px 30px;
+            margin: 10px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(197, 61, 86, 0.3);
+        }
+        
+        .demo-button:hover {
+            background: #a02d42;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(197, 61, 86, 0.4);
+        }
+        
+        .demo-button.secondary {
+            background: #3498db;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+        
+        .demo-button.secondary:hover {
+            background: #2980b9;
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+        
+        .code-section {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            overflow-x: auto;
+        }
+        
+        .code-section h3 {
+            color: #81c784;
+            margin-bottom: 20px;
+        }
+        
+        .code-section pre {
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            padding: 40px 20px;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            .features {
+                padding: 20px;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1>Immersive Bilingual Toggle</h1>
+            <p>一个通用的 JavaScript 库，实现网页沉浸式双语切换功能</p>
+            <p>A universal JavaScript library for immersive bilingual text toggling</p>
+        </div>
+        
+        <div class="features">
+            <h2>核心特性 Core Features</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>🎯 点击切换 Click Toggle</h3>
+                    <p>点击任意文本区域即可在原文和译文之间切换，提供直观的交互体验。</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>🔄 全局切换 Global Toggle</h3>
+                    <p>提供全局切换按钮，一键切换整个页面的显示语言。</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>📝 JSON 配置 JSON Config</h3>
+                    <p>使用简单的 JSON 文件管理翻译对照，易于维护和更新。</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>🎨 样式友好 Style Friendly</h3>
+                    <p>保持原有页面布局，译文有独特的视觉标识，不破坏设计。</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>🚀 即插即用 Plug & Play</h3>
+                    <p>一行代码集成，支持所有静态网站生成器和框架。</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>🔍 自动检测 Auto Detection</h3>
+                    <p>自动检测页面文本并应用翻译，无需手动标记每个元素。</p>
+                </div>
+            </div>
+            
+            <div class="demo-links">
+                <a href="./example/" class="demo-button">基础演示 Basic Demo</a>
+                <a href="./example/advanced.html" class="demo-button secondary">高级演示 Advanced Demo</a>
+                <a href="./example/test-fixed.html" class="demo-button secondary">修复测试 Fixed Test</a>
+                <a href="https://github.com/yourusername/immersive-bilingual" class="demo-button secondary">GitHub 源码</a>
+            </div>
+            
+            <div class="code-section">
+                <h3>快速开始 Quick Start</h3>
+                <pre><code>&lt;!-- 1. 引入库文件 Include Library --&gt;
+&lt;script src="https://cdn.jsdelivr.net/gh/yourusername/immersive-bilingual@main/dist/immersive-bilingual.min.js"&gt;&lt;/script&gt;
+
+&lt;!-- 2. 配置翻译数据 Configure Translation Data --&gt;
+&lt;script&gt;
+window.ImmersiveBilingualConfig = {
+  translationUrl: './translations.json'
+};
+&lt;/script&gt;
+
+&lt;!-- 3. 标记需要翻译的文本 Mark Text for Translation --&gt;
+&lt;h1 data-translate="Getting Started"&gt;Getting Started&lt;/h1&gt;
+&lt;p data-translate="Welcome message"&gt;Welcome to our documentation&lt;/p&gt;</code></pre>
+            </div>
+            
+            <div class="code-section">
+                <h3>翻译配置文件 Translation Config (translations.json)</h3>
+                <pre><code>{
+  "Getting Started": "开始使用",
+  "Welcome message": "欢迎来到我们的文档",
+  "Documentation": "文档",
+  "API Reference": "API 参考",
+  "Examples": "示例"
+}</code></pre>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Made with ❤️ for the developer community</p>
+            <p>为开发者社区用心打造</p>
+        </div>
+    </div>
+</body>
+</html>
