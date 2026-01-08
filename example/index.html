@@ -4,8 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>沉浸式双语切换示例</title>
+    <style>
+        .controls {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            font-size: 14px;
+            max-width: 400px;
+        }
+        .controls button {
+            margin: 5px;
+            padding: 8px 12px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            background: #007bff;
+            color: white;
+        }
+        .controls button:hover {
+            background: #0056b3;
+        }
+        .controls .info {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
 </head>
 <body>
+    <div class="controls">
+        <div><strong>当前路由:</strong> <span id="currentRoute"></span></div>
+        <button onclick="showStoredRoutes()">查看所有路由</button>
+        <button onclick="showCurrentRouteData()">当前路由数据</button>
+        <button onclick="showAllData()">查看全量数据</button>
+        <div class="info" id="info"></div>
+    </div>
+
     <h1>JavaScript Documentation</h1>
     
     <h2>Introduction</h2>
@@ -24,5 +66,59 @@
     
     <!-- 引入沉浸式双语库 -->
     <script src="../dist/immersive-bilingual.min.js"></script>
+    
+    <script>
+        // 显示当前路由
+        document.getElementById('currentRoute').textContent = window.location.pathname || '/';
+        
+        // 获取 bilingual 实例
+        let bilingualInstance = null;
+        
+        function getBilingualInstance() {
+            if (!bilingualInstance) {
+                bilingualInstance = window.bilingualInstance || 
+                    new ImmersiveBilingual(window.ImmersiveBilingualConfig);
+                window.bilingualInstance = bilingualInstance;
+            }
+            return bilingualInstance;
+        }
+        
+        function showStoredRoutes() {
+            const instance = getBilingualInstance();
+            const routes = instance.getStoredRoutes();
+            const info = document.getElementById('info');
+            
+            if (routes.length === 0) {
+                info.innerHTML = '<p>暂无存储的路由</p>';
+            } else {
+                info.innerHTML = '<p><strong>已存储的路由:</strong></p>' + 
+                    routes.map(r => `<div>• ${r}</div>`).join('');
+            }
+        }
+        
+        function showCurrentRouteData() {
+            const instance = getBilingualInstance();
+            const data = instance.getTranslationData();
+            const info = document.getElementById('info');
+            
+            if (Object.keys(data).length > 0) {
+                info.innerHTML = '<p><strong>当前路由翻译数据:</strong></p>' +
+                    '<pre style="white-space: pre-wrap; word-break: break-all; font-size: 12px;">' + 
+                    JSON.stringify(data, null, 2) + '</pre>';
+            } else {
+                info.innerHTML = '<p>当前路由暂无翻译数据</p>';
+            }
+        }
+        
+        function showAllData() {
+            const instance = getBilingualInstance();
+            const data = instance.getAllTranslationData();
+            const info = document.getElementById('info');
+            
+            info.innerHTML = '<p><strong>全量翻译数据（按路由分组）:</strong></p>' +
+                '<pre style="white-space: pre-wrap; word-break: break-all; font-size: 11px;">' + 
+                JSON.stringify(data, null, 2) + '</pre>';
+        }
+    </script>
 </body>
 </html>

@@ -1,22 +1,128 @@
 /**
  * Immersive Bilingual Toggle Library
  * A simple JavaScript library for bilingual text toggling
+ * Supports route-based translation data loading
  */
 
 class ImmersiveBilingual {
   constructor(options = {}) {
     this.options = {
-      translationData: null,
+      translationData: null, // 全量翻译数据，以路由为键名 { "/geekdex": {...}, "/posts/xxx.html": {...} }
       defaultMode: 'translation', // 默认显示译文（中文）
+      storageKey: 'immersive_bilingual_translations', // localStorage 存储键名
       ...options
     };
 
-    this.translationData = {};
+    this.allTranslationData = {}; // 全量数据（以路由为键名）
+    this.translationData = {}; // 当前路由的翻译数据
     this.initialized = false;
+    this.currentRoute = this.getCurrentRoute();
 
-    if (this.options.translationData) {
-      this.init();
+    this.init();
+  }
+
+  /**
+   * 获取当前路由
+   * 例如: https://github.com/geekdex -> /geekdex
+   * 例如: https://blog.algs.tech/posts/xxx.html -> /posts/xxx.html
+   */
+  getCurrentRoute() {
+    return window.location.pathname || '/';
+  }
+
+  /**
+   * 从全量数据中加载当前路由的翻译数据
+   */
+  loadCurrentRouteData() {
+    // 优先从传入的 translationData 中查找
+    if (this.allTranslationData[this.currentRoute]) {
+      this.translationData = this.allTranslationData[this.currentRoute];
+      console.log(`Translation data loaded for route: ${this.currentRoute}`);
+      return this.translationData;
     }
+
+    // 尝试从 localStorage 加载
+    try {
+      const stored = localStorage.getItem(this.options.storageKey);
+      if (stored) {
+        const allData = JSON.parse(stored);
+        if (allData[this.currentRoute]) {
+          this.translationData = allData[this.currentRoute];
+          console.log(`Translation data loaded from storage for route: ${this.currentRoute}`);
+          return this.translationData;
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load translation data from storage:', error);
+    }
+
+    console.log(`No translation data found for route: ${this.currentRoute}`);
+    return null;
+  }
+
+  /**
+   * 保存翻译数据到 localStorage
+   */
+  saveToStorage() {
+    try {
+      localStorage.setItem(this.options.storageKey, JSON.stringify(this.allTranslationData));
+      console.log('Translation data saved to storage');
+      return true;
+    } catch (error) {
+      console.error('Failed to save translation data:', error);
+      return false;
+    }
+  }
+
+  /**
+   * 设置指定路由的翻译数据
+   */
+  setRouteData(route, data, save = true) {
+    this.allTranslationData[route] = data;
+    if (route === this.currentRoute) {
+      this.translationData = data;
+    }
+    if (save) {
+      this.saveToStorage();
+    }
+  }
+
+  /**
+   * 获取指定路由的翻译数据
+   */
+  getRouteData(route) {
+    return this.allTranslationData[route] || null;
+  }
+
+  /**
+   * 获取所有已存储的路由列表
+   */
+  getStoredRoutes() {
+    return Object.keys(this.allTranslationData);
+  }
+
+  /**
+   * 删除指定路由的翻译数据
+   */
+  removeRouteData(route, save = true) {
+    delete this.allTranslationData[route];
+    if (route === this.currentRoute) {
+      this.translationData = {};
+    }
+    if (save) {
+      this.saveToStorage();
+    }
+    console.log(`Translation data removed for route: ${route}`);
+  }
+
+  /**
+   * 清除所有翻译数据
+   */
+  clearAllData() {
+    this.allTranslationData = {};
+    this.translationData = {};
+    localStorage.removeItem(this.options.storageKey);
+    console.log('All translation data cleared');
   }
 
   init() {
@@ -24,6 +130,7 @@ class ImmersiveBilingual {
 
     try {
       this.loadTranslationData();
+      this.loadCurrentRouteData();
       this.injectStyles();
       this.processTextNodes();
       this.initialized = true;
@@ -34,10 +141,20 @@ class ImmersiveBilingual {
   }
 
   loadTranslationData() {
+    // 加载传入的全量数据
     if (this.options.translationData) {
-      this.translationData = this.options.translationData;
+      this.allTranslationData = this.options.translationData;
+      this.saveToStorage();
     } else {
-      console.warn('No translation data found. Please provide translationData option.');
+      // 尝试从 localStorage 加载
+      try {
+        const stored = localStorage.getItem(this.options.storageKey);
+        if (stored) {
+          this.allTranslationData = JSON.parse(stored);
+        }
+      } catch (error) {
+        console.error('Failed to load translation data from storage:', error);
+      }
     }
   }
 
@@ -188,15 +305,76 @@ class ImmersiveBilingual {
   }
 
   // Public API methods
-  setTranslationData(data) {
-    this.translationData = data;
+  
+  /**
+   * 设置全量翻译数据（以路由为键名）
+   */
+  setAllTranslationData(data, save = true) {
+    this.allTranslationData = data;
+    this.loadCurrentRouteData();
+    if (save) {
+      this.saveToStorage();
+    }
     if (this.initialized) {
       this.processTextNodes();
     }
   }
 
-  addTranslation(key, value) {
+  /**
+   * 为当前路由添加单条翻译
+   */
+  addTranslation(key, value, save = true) {
     this.translationData[key] = value;
+    this.allTranslationData[this.currentRoute] = this.translationData;
+    if (save) {
+      this.saveToStorage();
+    }
+  }
+
+  /**
+   * 为当前路由批量添加翻译
+   */
+  addTranslations(translations, save = true) {
+    Object.assign(this.translationData, translations);
+    this.allTranslationData[this.currentRoute] = this.translationData;
+    if (save) {
+      this.saveToStorage();
+    }
+  }
+
+  /**
+   * 获取当前路由的翻译数据
+   */
+  getTranslationData() {
+    return { ...this.translationData };
+  }
+
+  /**
+   * 获取全量翻译数据
+   */
+  getAllTranslationData() {
+    return { ...this.allTranslationData };
+  }
+
+  /**
+   * 导出全量翻译数据
+   */
+  exportAllData() {
+    return JSON.stringify(this.allTranslationData, null, 2);
+  }
+
+  /**
+   * 导入全量翻译数据
+   */
+  importAllData(jsonString) {
+    try {
+      const data = typeof jsonString === 'string' ? JSON.parse(jsonString) : jsonString;
+      this.setAllTranslationData(data);
+      return true;
+    } catch (error) {
+      console.error('Failed to import translation data:', error);
+      return false;
+    }
   }
 
   destroy() {
