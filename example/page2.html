@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue 入门教程</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .nav { margin-bottom: 20px; padding: 10px; background: #f0f0f0; border-radius: 4px; }
+        .nav a { margin-right: 15px; color: #007bff; text-decoration: none; }
+        .route-info { background: #e7f3ff; padding: 10px; border-radius: 4px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="index.html">首页</a>
+        <a href="page1.html">React 教程</a>
+        <a href="page2.html">Vue 教程</a>
+    </div>
+    
+    <div class="route-info">
+        <strong>当前路由:</strong> <span id="currentRoute"></span>
+    </div>
+
+    <h1>Introduction to Vue.js</h1>
+    
+    <h2>What is Vue?</h2>
+    <p>Vue is a progressive framework for building user interfaces.</p>
+    <p>Unlike other monolithic frameworks, Vue is designed to be incrementally adoptable.</p>
+    
+    <h2>Template Syntax</h2>
+    <p>Vue uses an HTML-based template syntax that allows you to declaratively bind the rendered DOM.</p>
+    <p>All Vue templates are syntactically valid HTML.</p>
+    
+    <h2>Reactivity Fundamentals</h2>
+    <p>Vue automatically tracks JavaScript state changes and efficiently updates the DOM.</p>
+    <p>The reactive system makes state management simple and intuitive.</p>
+
+    <script src="translations.js"></script>
+    <script src="../dist/immersive-bilingual.min.js"></script>
+    <script>
+        // 库会自动初始化，这里只显示当前路由
+        setTimeout(() => {
+            document.getElementById('currentRoute').textContent = 
+                window.bilingualInstance?.currentRoute || window.location.pathname;
+        }, 100);
+    </script>
+</body>
+</html>

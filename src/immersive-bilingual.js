@@ -25,9 +25,23 @@ class ImmersiveBilingual {
    * 获取当前路由
    * 例如: https://github.com/geekdex -> /geekdex
    * 例如: https://blog.algs.tech/posts/xxx.html -> /posts/xxx.html
+   * 例如: /example/index.html -> /example/
+   * 例如: /index.html -> /
    */
   getCurrentRoute() {
-    return window.location.pathname || '/';
+    let pathname = window.location.pathname || '/';
+    
+    // 处理 index.html 的情况，将其转换为目录路由
+    // /example/index.html -> /example/
+    // /index.html -> /
+    if (pathname.endsWith('/index.html')) {
+      pathname = pathname.slice(0, -10); // 移除 'index.html'
+      if (pathname === '') {
+        pathname = '/';
+      }
+    }
+    
+    return pathname;
   }
 
   /**
@@ -395,14 +409,16 @@ if (typeof window !== 'undefined') {
   window.ImmersiveBilingual = ImmersiveBilingual;
   
   // Auto-init on DOM ready
+  const autoInit = () => {
+    if (window.ImmersiveBilingualConfig && !window.bilingualInstance) {
+      window.bilingualInstance = new ImmersiveBilingual(window.ImmersiveBilingualConfig);
+    }
+  };
+  
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      if (window.ImmersiveBilingualConfig) {
-        new ImmersiveBilingual(window.ImmersiveBilingualConfig);
-      }
-    });
-  } else if (window.ImmersiveBilingualConfig) {
-    new ImmersiveBilingual(window.ImmersiveBilingualConfig);
+    document.addEventListener('DOMContentLoaded', autoInit);
+  } else {
+    autoInit();
   }
 }
 

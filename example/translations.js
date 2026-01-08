@@ -1,11 +1,11 @@
 // 翻译配置文件
 // 使用路由作为键名，访问对应路由时只加载该路由的翻译数据
+// 注意：index.html 会自动转换为目录路由，如 /example/index.html -> /example/
 
 window.ImmersiveBilingualConfig = {
-    // 全量翻译数据，以路由为键名
     translationData: {
-        // 路由 /example/index.html 的翻译数据
-        "/example/index.html": {
+        // 路由 /example/ (对应 /example/index.html)
+        "/example/": {
             "JavaScript Documentation": "JavaScript 文档",
             "Introduction": "介绍",
             "JavaScript is a programming language that adds interactivity to your website.": "JavaScript 是一种为网站添加交互性的编程语言。",
@@ -17,53 +17,55 @@ window.ImmersiveBilingualConfig = {
             "A function is executed when something invokes it.": "当某些东西调用函数时，函数就会被执行。"
         },
         
-        // 路由 /geekdex 的翻译数据（示例）
+        // 路由 /example/page1.html (React 教程)
+        "/example/page1.html": {
+            "Getting Started with React": "React 入门指南",
+            "What is React?": "什么是 React？",
+            "React is a JavaScript library for building user interfaces.": "React 是一个用于构建用户界面的 JavaScript 库。",
+            "It lets you compose complex UIs from small and isolated pieces of code called components.": "它允许你通过称为组件的小型独立代码片段来组合复杂的用户界面。",
+            "Creating a Component": "创建组件",
+            "Components are independent and reusable bits of code.": "组件是独立且可复用的代码片段。",
+            "They serve the same purpose as JavaScript functions, but work in isolation.": "它们的作用与 JavaScript 函数相同，但独立工作。",
+            "Props and State": "Props 和 State",
+            "Props are arguments passed into React components.": "Props 是传递给 React 组件的参数。",
+            "State is a built-in object that stores property values that belong to the component.": "State 是一个内置对象，用于存储属于组件的属性值。"
+        },
+        
+        // 路由 /example/page2.html (Vue 教程)
+        "/example/page2.html": {
+            "Introduction to Vue.js": "Vue.js 入门",
+            "What is Vue?": "什么是 Vue？",
+            "Vue is a progressive framework for building user interfaces.": "Vue 是一个用于构建用户界面的渐进式框架。",
+            "Unlike other monolithic frameworks, Vue is designed to be incrementally adoptable.": "与其他单体框架不同，Vue 被设计为可以渐进式采用。",
+            "Template Syntax": "模板语法",
+            "Vue uses an HTML-based template syntax that allows you to declaratively bind the rendered DOM.": "Vue 使用基于 HTML 的模板语法，允许你声明式地将渲染的 DOM 绑定到数据。",
+            "All Vue templates are syntactically valid HTML.": "所有 Vue 模板都是语法上有效的 HTML。",
+            "Reactivity Fundamentals": "响应式基础",
+            "Vue automatically tracks JavaScript state changes and efficiently updates the DOM.": "Vue 自动追踪 JavaScript 状态变化并高效地更新 DOM。",
+            "The reactive system makes state management simple and intuitive.": "响应式系统使状态管理变得简单直观。"
+        },
+        
+        // 其他路由示例
         "/geekdex": {
             "Welcome": "欢迎",
             "Profile": "个人资料",
             "Repositories": "仓库"
-        },
-        
-        // 路由 /posts/tools_publish-technical-tutorials-in-google-godelab-format.html 的翻译数据（示例）
-        "/posts/tools_publish-technical-tutorials-in-google-godelab-format.html": {
-            "Getting Started": "开始使用",
-            "Prerequisites": "前置条件",
-            "Installation": "安装"
         }
     }
 };
 
 /**
- * 使用示例：
+ * 路由规则说明：
  * 
- * 1. 数据结构说明：
- *    translationData 以路由为键名，每个路由对应一个翻译对象
- *    {
- *        "/geekdex": { "Hello": "你好", ... },
- *        "/posts/xxx.html": { "Title": "标题", ... }
- *    }
+ * 1. index.html 会自动转换为目录路由：
+ *    - /example/index.html -> /example/
+ *    - /index.html -> /
  * 
- * 2. 自动加载：
- *    访问 https://example.com/geekdex 时，自动加载 translationData["/geekdex"]
- *    访问 https://example.com/posts/xxx.html 时，自动加载 translationData["/posts/xxx.html"]
+ * 2. 其他 html 文件保持原路由：
+ *    - /example/page1.html -> /example/page1.html
+ *    - /posts/article.html -> /posts/article.html
  * 
- * 3. 手动设置指定路由的翻译数据：
- *    bilingual.setRouteData('/geekdex', { "Hello": "你好" });
- * 
- * 4. 获取指定路由的翻译数据：
- *    const data = bilingual.getRouteData('/geekdex');
- * 
- * 5. 获取当前路由的翻译数据：
- *    const data = bilingual.getTranslationData();
- * 
- * 6. 获取所有已存储的路由列表：
- *    const routes = bilingual.getStoredRoutes();
- *    // 返回: ['/geekdex', '/posts/xxx.html', ...]
- * 
- * 7. 删除指定路由的翻译数据：
- *    bilingual.removeRouteData('/posts/old-article.html');
- * 
- * 8. 导出/导入全量数据：
- *    const json = bilingual.exportAllData();
- *    bilingual.importAllData(json);
+ * 3. 非 html 路由保持不变：
+ *    - /geekdex -> /geekdex
+ *    - /api/users -> /api/users
  */
