@@ -177,6 +177,8 @@ class ImmersiveBilingual {
       .bilingual-container {
         cursor: pointer;
         transition: background-color 0.2s ease;
+        position: relative;
+        margin: 8px 0;
       }
       
       .bilingual-container:hover {
@@ -200,9 +202,64 @@ class ImmersiveBilingual {
         border-top: 1px dashed #ccc;
       }
       
-      /* 点击后显示原文 */
+      /* 块级翻译样式 */
+      .bilingual-block {
+        border-left: 3px solid #007bff;
+        padding-left: 12px;
+        margin: 16px 0;
+      }
+      
+      .bilingual-block .bilingual-translation {
+        background: rgba(0, 123, 255, 0.02);
+        padding: 8px;
+        border-radius: 4px;
+      }
+      
+      .bilingual-block .bilingual-original {
+        background: rgba(108, 117, 125, 0.05);
+        padding: 8px;
+        border-radius: 4px;
+        border-top: 1px solid #dee2e6;
+        margin-top: 8px;
+      }
+      
+      .bilingual-id-label {
+        display: none;
+        position: absolute;
+        top: -20px;
+        right: 0;
+        background: #007bff;
+        color: white;
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-family: monospace;
+        z-index: 10;
+      }
+      
+      /* 点击后显示原文和 ID */
       .bilingual-container.show-original .bilingual-original {
         display: block;
+      }
+      
+      .bilingual-container.show-original .bilingual-id-label {
+        display: block;
+      }
+      
+      /* 悬停时显示 ID */
+      .bilingual-container:hover .bilingual-id-label {
+        display: block;
+      }
+      
+      /* 块级翻译的特殊样式 */
+      .bilingual-block:hover {
+        background-color: rgba(197, 61, 86, 0.02);
+        border-left-color: #c53d56;
+      }
+      
+      .bilingual-block .bilingual-id-label {
+        background: #28a745;
+        top: -15px;
       }
     `;
 
@@ -212,20 +269,9 @@ class ImmersiveBilingual {
   }
 
   processTextNodes() {
-    // Process elements with data-translate attribute
-    const elements = document.querySelectorAll('[data-translate]');
-    
-    elements.forEach(element => {
-      const key = element.getAttribute('data-translate');
-      if (key && this.translationData[key]) {
-        this.createBilingualElement(element, element.textContent.trim(), this.translationData[key]);
-      }
-    });
-
-    // Auto-detect and process text nodes if no data-translate elements found
-    if (elements.length === 0) {
-      this.autoDetectAndProcess();
-    }
+    // Only process block translations with <!-- trans:id --> ... <!-- trans_end:id -->
+    const processedCount = this.processBlockTranslations();
+    console.log(`Processed ${processedCount} block translations`);
   }
 
   autoDetectAndProcess() {
@@ -269,6 +315,188 @@ class ImmersiveBilingual {
            element.classList?.contains('bilingual-container');
   }
 
+  /**
+   * 处理块级翻译 <!-- trans:id --> ... <!-- trans_end:id -->
+   */
+  processBlockTranslations() {
+    const walker = document.createTreeWalker(
+      document.body,
+      NodeFilter.SHOW_COMMENT,
+      null,
+      false
+    );
+
+    let comment;
+    let processedCount = 0;
+    const processedComments = new Set();
+
+    while (comment = walker.nextNode()) {
+      if (processedComments.has(comment)) continue;
+      
+      const startMatch = comment.textContent.trim().match(/^trans:(.+)$/);
+      if (startMatch) {
+        const transId = startMatch[1].trim();
+        const translation = this.translationData[transId];
+        
+        if (translation) {
+          // 查找对应的结束注释
+          const endComment = this.findEndComment(comment, transId);
+          if (endComment) {
+            // 获取开始和结束注释之间的所有内容
+            const blockContent = this.extractBlockContent(comment, endComment);
+            if (blockContent.elements.length > 0) {
+              this.createBlockBilingualElement(comment, endComment, blockContent, translation, transId);
+              processedComments.add(comment);
+              processedComments.add(endComment);
+              processedCount++;
+            }
+          }
+        }
+      }
+    }
+
+    return processedCount;
+  }
+
+  /**
+   * 查找对应的结束注释 <!-- trans_end:id -->
+   */
+  findEndComment(startComment, transId) {
+    let node = startComment.nextSibling;
+    const endPattern = new RegExp(`^trans_end:${transId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`);
+    
+    while (node) {
+      if (node.nodeType === Node.COMMENT_NODE) {
+        if (endPattern.test(node.textContent.trim())) {
+          return node;
+        }
+      }
+      node = node.nextSibling;
+    }
+    
+    return null;
+  }
+
+  /**
+   * 提取块级内容（开始和结束注释之间的所有元素）
+   */
+  extractBlockContent(startComment, endComment) {
+    const elements = [];
+    const textContent = [];
+    let node = startComment.nextSibling;
+    
+    while (node && node !== endComment) {
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        elements.push(node);
+        textContent.push(node.textContent.trim());
+      } else if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
+        textContent.push(node.textContent.trim());
+      }
+      node = node.nextSibling;
+    }
+    
+    return {
+      elements: elements,
+      textContent: textContent.join(' ').trim(),
+      htmlContent: elements.map(el => el.outerHTML).join('')
+    };
+  }
+
+  /**
+   * 创建块级双语元素
+   */
+  createBlockBilingualElement(startComment, endComment, blockContent, translationText, transId) {
+    // 创建容器元素
+    const container = document.createElement('div');
+    container.className = 'bilingual-container bilingual-block';
+    container.setAttribute('data-trans-id', transId);
+    
+    const translation = document.createElement('div');
+    translation.className = 'bilingual-translation';
+    translation.innerHTML = translationText; // 使用 innerHTML 支持 HTML 内容
+    
+    const original = document.createElement('div');
+    original.className = 'bilingual-original';
+    original.innerHTML = blockContent.htmlContent; // 保持原始 HTML 格式
+    
+    // 添加 ID 标识
+    const idLabel = document.createElement('div');
+    idLabel.className = 'bilingual-id-label';
+    idLabel.textContent = `ID: ${transId}`;
+    
+    container.appendChild(translation);
+    container.appendChild(original);
+    container.appendChild(idLabel);
+    
+    // 在开始注释位置插入容器
+    startComment.parentNode.insertBefore(container, startComment);
+    
+    // 移除开始注释到结束注释之间的所有内容（包括注释本身）
+    let nodeToRemove = startComment;
+    while (nodeToRemove) {
+      const nextNode = nodeToRemove.nextSibling;
+      nodeToRemove.parentNode.removeChild(nodeToRemove);
+      if (nodeToRemove === endComment) break;
+      nodeToRemove = nextNode;
+    }
+    
+    // 添加点击事件
+    container.addEventListener('click', (e) => {
+      e.stopPropagation();
+      container.classList.toggle('show-original');
+    });
+  }
+
+  /**
+   * 查找注释后的下一个元素节点
+   */
+  findNextElementAfterComment(comment) {
+    let node = comment.nextSibling;
+    
+    // 跳过空白文本节点
+    while (node && node.nodeType === Node.TEXT_NODE && !node.textContent.trim()) {
+      node = node.nextSibling;
+    }
+    
+    // 如果是元素节点，直接返回
+    if (node && node.nodeType === Node.ELEMENT_NODE) {
+      return node;
+    }
+    
+    // 如果是文本节点，返回其父元素
+    if (node && node.nodeType === Node.TEXT_NODE) {
+      return node.parentElement;
+    }
+    
+    return null;
+  }
+
+  /**
+   * 提取元素的文本内容（排除已处理的双语容器）
+   */
+  extractTextContent(element) {
+    if (element.classList?.contains('bilingual-container')) {
+      return null;
+    }
+    
+    // 如果元素只包含文本，直接返回
+    if (element.childNodes.length === 1 && element.firstChild.nodeType === Node.TEXT_NODE) {
+      return element.textContent.trim();
+    }
+    
+    // 如果元素包含多个子节点，提取所有文本内容
+    let text = '';
+    for (const child of element.childNodes) {
+      if (child.nodeType === Node.TEXT_NODE) {
+        text += child.textContent;
+      } else if (child.nodeType === Node.ELEMENT_NODE && !child.classList?.contains('bilingual-container')) {
+        text += child.textContent;
+      }
+    }
+    
+    return text.trim();
+  }
+
   findTranslation(text) {
     // Direct match
     if (this.translationData[text]) {
@@ -306,6 +534,48 @@ class ImmersiveBilingual {
     // 先添加译文（上面），再添加原文（下面）
     container.appendChild(translation);
     container.appendChild(original);
+    
+    // Replace original element content
+    element.innerHTML = '';
+    element.appendChild(container);
+    
+    // Add click handler for toggle
+    container.addEventListener('click', (e) => {
+      e.stopPropagation();
+      container.classList.toggle('show-original');
+    });
+  }
+
+  /**
+   * 创建带 ID 的双语元素（用于基于注释的翻译）
+   */
+  createBilingualElementWithId(element, originalText, translationText, transId) {
+    // Skip if already processed
+    if (element.classList?.contains('bilingual-container')) {
+      return;
+    }
+
+    const container = document.createElement('div');
+    container.className = 'bilingual-container';
+    container.setAttribute('data-trans-id', transId);
+    
+    const translation = document.createElement('div');
+    translation.className = 'bilingual-translation';
+    translation.textContent = translationText;
+    
+    const original = document.createElement('div');
+    original.className = 'bilingual-original';
+    original.textContent = originalText;
+    
+    // 添加 ID 标识
+    const idLabel = document.createElement('div');
+    idLabel.className = 'bilingual-id-label';
+    idLabel.textContent = `ID: ${transId}`;
+    
+    // 先添加译文（上面），再添加原文（下面），最后添加 ID 标识
+    container.appendChild(translation);
+    container.appendChild(original);
+    container.appendChild(idLabel);
     
     // Replace original element content
     element.innerHTML = '';
