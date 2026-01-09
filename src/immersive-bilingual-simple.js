@@ -103,61 +103,22 @@ class ImmersiveBilingual {
     const styles = `
       .bilingual-container {
         cursor: pointer;
-        transition: background-color 0.2s ease;
-        position: relative;
-        margin: 8px 0;
-        border-left: 3px solid #007bff;
-        padding-left: 12px;
-      }
-      
-      .bilingual-container:hover {
-        background-color: rgba(197, 61, 86, 0.02);
-        border-left-color: #c53d56;
       }
       
       .bilingual-translation {
         display: block;
-        margin: 0;
-        padding: 8px;
-        background: rgba(0, 123, 255, 0.02);
-        border-radius: 4px;
       }
       
       .bilingual-original {
         display: none;
         color: #666;
         font-size: 0.9em;
-        line-height: 1.5;
-        margin: 8px 0 0 0;
-        padding: 8px;
-        background: rgba(108, 117, 125, 0.05);
-        border-radius: 4px;
-        border-top: 1px solid #dee2e6;
-      }
-      
-      .bilingual-id-label {
-        display: none;
-        position: absolute;
-        top: -15px;
-        right: 0;
-        background: #28a745;
-        color: white;
-        font-size: 10px;
-        padding: 2px 6px;
-        border-radius: 3px;
-        font-family: monospace;
-        z-index: 10;
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px dashed #ccc;
       }
       
       .bilingual-container.show-original .bilingual-original {
-        display: block;
-      }
-      
-      .bilingual-container.show-original .bilingual-id-label {
-        display: block;
-      }
-      
-      .bilingual-container:hover .bilingual-id-label {
         display: block;
       }
     `;
@@ -267,13 +228,8 @@ class ImmersiveBilingual {
     original.className = 'bilingual-original';
     original.innerHTML = blockContent.htmlContent;
     
-    const idLabel = document.createElement('div');
-    idLabel.className = 'bilingual-id-label';
-    idLabel.textContent = `ID: ${transId}`;
-    
     container.appendChild(translation);
     container.appendChild(original);
-    container.appendChild(idLabel);
     
     startComment.parentNode.insertBefore(container, startComment);
     
