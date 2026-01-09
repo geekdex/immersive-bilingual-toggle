@@ -220,9 +220,34 @@ class ImmersiveBilingual {
     container.className = 'bilingual-container';
     container.setAttribute('data-trans-id', transId);
     
+    // 创建翻译元素，保持原始标签结构
     const translation = document.createElement('div');
     translation.className = 'bilingual-translation';
-    translation.innerHTML = translationText;
+    
+    // 如果原始内容只有一个元素且是标题标签，保持其标签类型
+    if (blockContent.elements.length === 1) {
+      const originalElement = blockContent.elements[0];
+      const headingTags = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6'];
+      
+      if (headingTags.includes(originalElement.tagName)) {
+        // 创建相同类型的标题标签用于翻译
+        const translationElement = document.createElement(originalElement.tagName.toLowerCase());
+        translationElement.innerHTML = translationText;
+        // 复制原始元素的属性（除了内容）
+        for (const attr of originalElement.attributes) {
+          if (attr.name !== 'id') { // 避免重复 ID
+            translationElement.setAttribute(attr.name, attr.value);
+          }
+        }
+        translation.appendChild(translationElement);
+      } else {
+        // 非标题元素，保持原有逻辑
+        translation.innerHTML = translationText;
+      }
+    } else {
+      // 多个元素，保持原有逻辑
+      translation.innerHTML = translationText;
+    }
     
     const original = document.createElement('div');
     original.className = 'bilingual-original';
