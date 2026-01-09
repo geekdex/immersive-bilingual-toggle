@@ -6,43 +6,43 @@ window.ImmersiveBilingualConfig = {
     translationData: {
         // 路由 /example/ (对应 /example/index.html)
         "/example/": {
-            "JavaScript Documentation": "JavaScript 文档",
-            "Introduction": "介绍",
-            "JavaScript is a programming language that adds interactivity to your website.": "JavaScript 是一种为网站添加交互性的编程语言。",
-            "Variables": "变量",
-            "Variables are containers for storing data values.": "变量是存储数据值的容器。",
-            "In JavaScript, you can declare variables using var, let, or const.": "在 JavaScript 中，你可以使用 var、let 或 const 声明变量。",
-            "Functions": "函数",
-            "Functions are blocks of code designed to perform a particular task.": "函数是为执行特定任务而设计的代码块。",
-            "A function is executed when something invokes it.": "当某些东西调用函数时，函数就会被执行。"
+            "js_doc_title": "JavaScript 文档",
+            "intro_title": "介绍",
+            "intro_desc": "JavaScript 是一种为网站添加交互性的编程语言。",
+            "variables_title": "变量",
+            "variables_desc": "变量是存储数据值的容器。",
+            "variables_declare": "在 JavaScript 中，你可以使用 var、let 或 const 声明变量。",
+            "functions_title": "函数",
+            "functions_desc": "函数是为执行特定任务而设计的代码块。",
+            "functions_invoke": "当某些东西调用函数时，函数就会被执行。"
         },
         
         // 路由 /example/page1.html (React 教程)
         "/example/page1.html": {
-            "Getting Started with React": "React 入门指南",
-            "What is React?": "什么是 React？",
-            "React is a JavaScript library for building user interfaces.": "React 是一个用于构建用户界面的 JavaScript 库。",
-            "It lets you compose complex UIs from small and isolated pieces of code called components.": "它允许你通过称为组件的小型独立代码片段来组合复杂的用户界面。",
-            "Creating a Component": "创建组件",
-            "Components are independent and reusable bits of code.": "组件是独立且可复用的代码片段。",
-            "They serve the same purpose as JavaScript functions, but work in isolation.": "它们的作用与 JavaScript 函数相同，但独立工作。",
-            "Props and State": "Props 和 State",
-            "Props are arguments passed into React components.": "Props 是传递给 React 组件的参数。",
-            "State is a built-in object that stores property values that belong to the component.": "State 是一个内置对象，用于存储属于组件的属性值。"
+            "react_title": "React 入门指南",
+            "what_is_react": "什么是 React？",
+            "react_desc": "React 是一个用于构建用户界面的 JavaScript 库。",
+            "react_components": "它允许你通过称为组件的小型独立代码片段来组合复杂的用户界面。",
+            "creating_component": "创建组件",
+            "component_desc": "组件是独立且可复用的代码片段。",
+            "component_purpose": "它们的作用与 JavaScript 函数相同，但独立工作。",
+            "props_state": "Props 和 State",
+            "props_desc": "Props 是传递给 React 组件的参数。",
+            "state_desc": "State 是一个内置对象，用于存储属于组件的属性值。"
         },
         
         // 路由 /example/page2.html (Vue 教程)
         "/example/page2.html": {
-            "Introduction to Vue.js": "Vue.js 入门",
-            "What is Vue?": "什么是 Vue？",
-            "Vue is a progressive framework for building user interfaces.": "Vue 是一个用于构建用户界面的渐进式框架。",
-            "Unlike other monolithic frameworks, Vue is designed to be incrementally adoptable.": "与其他单体框架不同，Vue 被设计为可以渐进式采用。",
-            "Template Syntax": "模板语法",
-            "Vue uses an HTML-based template syntax that allows you to declaratively bind the rendered DOM.": "Vue 使用基于 HTML 的模板语法，允许你声明式地将渲染的 DOM 绑定到数据。",
-            "All Vue templates are syntactically valid HTML.": "所有 Vue 模板都是语法上有效的 HTML。",
-            "Reactivity Fundamentals": "响应式基础",
-            "Vue automatically tracks JavaScript state changes and efficiently updates the DOM.": "Vue 自动追踪 JavaScript 状态变化并高效地更新 DOM。",
-            "The reactive system makes state management simple and intuitive.": "响应式系统使状态管理变得简单直观。"
+            "vue_title": "Vue.js 入门",
+            "what_is_vue": "什么是 Vue？",
+            "vue_desc": "Vue 是一个用于构建用户界面的渐进式框架。",
+            "vue_adoptable": "与其他单体框架不同，Vue 被设计为可以渐进式采用。",
+            "template_syntax": "模板语法",
+            "template_desc": "Vue 使用基于 HTML 的模板语法，允许你声明式地将渲染的 DOM 绑定到数据。",
+            "template_valid": "所有 Vue 模板都是语法上有效的 HTML。",
+            "reactivity_title": "响应式基础",
+            "reactivity_desc": "Vue 自动追踪 JavaScript 状态变化并高效地更新 DOM。",
+            "reactivity_simple": "响应式系统使状态管理变得简单直观。"
         },
         
         // 其他路由示例

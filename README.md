@@ -1,50 +1,70 @@
 # 沉浸式双语切换
 
-通用 JavaScript 库，实现网页中英文双语切换。适合技术文档汉化。
+通用 JavaScript 库，实现网页双语切换。支持基于路由的翻译数据管理。
 
 ## 功能
 
-- 默认显示中文译文
-- 点击文字块切换原文/译文
-- 自动检测文本匹配翻译
+- 基于路由的翻译数据管理
+- 默认显示译文，点击切换原文
+- 支持块级翻译和自动文本匹配
+- 本地存储翻译数据
 
 ## 快速使用
 
 ### 1. 引入文件
 
 ```html
-<!-- 引入翻译配置 -->
 <script src="translations.js"></script>
-<!-- 引入库文件 -->
 <script src="immersive-bilingual.min.js"></script>
 ```
 
-### 2. 配置翻译
+### 2. 配置翻译数据
 
-`translations.js` 文件内容：
 ```javascript
 window.ImmersiveBilingualConfig = {
     translationData: {
-        "Hello World": "你好世界",
-        "Welcome": "欢迎"
+        "/example/": {
+            "intro_1": "JavaScript 是一种编程语言",
+            "intro_2": "用于为网站添加交互性"
+        },
+        "/docs/": {
+            "title": "文档标题",
+            "content": "文档内容"
+        }
     }
 };
 ```
 
 ### 3. 使用方式
 
-- 页面加载后默认显示中文译文
-- 点击任意文字块切换到英文原文
-- 再次点击切换回中文译文
+**自动文本匹配：**
+页面中的英文文本会自动匹配翻译数据中的 ID，显示对应译文。
 
-## 配置选项
+**块级翻译（推荐）：**
+```html
+<!-- trans:intro_1 -->
+<p>JavaScript is a programming language</p>
+<!-- trans_end:intro_1 -->
+
+<!-- trans:intro_2 -->
+<p>that adds interactivity to your website</p>
+<!-- trans_end:intro_2 -->
+```
+
+## API
 
 ```javascript
-window.ImmersiveBilingualConfig = {
-    translationData: {        // 翻译数据对象（必需）
-        "原文": "译文"
-    }
-};
+const bilingual = new ImmersiveBilingual(config);
+
+// 设置路由翻译数据
+bilingual.setRouteData('/path/', { id: '译文' });
+
+// 获取当前路由数据
+bilingual.getTranslationData();
+
+// 导出/导入全量数据
+const data = bilingual.exportAllData();
+bilingual.importAllData(data);
 ```
 
 ## 构建
@@ -56,7 +76,7 @@ npm run build
 
 ## 示例
 
-查看 `example/index.html`
+查看 `example/` 目录
 
 ## 许可证
 
