@@ -135,6 +135,15 @@ class ImmersiveBilingual {
       .bilingual-container.show-original .bilingual-original {
         display: block;
       }
+      
+      /* 翻译内容中的行内代码样式 */
+      .bilingual-translation code {
+        background-color: rgba(127, 127, 127, 0.15);
+        padding: 0.1em 0.3em;
+        border-radius: 3px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.9em;
+      }
     `;
 
     const styleSheet = document.createElement('style');
@@ -334,9 +343,12 @@ class ImmersiveBilingual {
    * 智能设置翻译内容，保持内部结构
    */
   setTranslationContent(translationElement, originalElement, translationText) {
+    // 先渲染 Markdown 格式（链接和代码）
+    const renderedText = this.renderMarkdown(translationText);
+    
     // 如果翻译文本包含 HTML 标签，直接使用
-    if (translationText.includes('<')) {
-      translationElement.innerHTML = translationText;
+    if (renderedText.includes('<')) {
+      translationElement.innerHTML = renderedText;
       return;
     }
     
@@ -345,7 +357,7 @@ class ImmersiveBilingual {
     
     if (innerStructure.hasSimpleTextContent) {
       // 简单文本内容，直接设置
-      translationElement.textContent = translationText;
+      translationElement.textContent = renderedText;
     } else if (innerStructure.hasParagraphs) {
       // 包含段落结构，创建相应的 p 标签并保持内部样式
       const p = document.createElement('p');
@@ -366,22 +378,45 @@ class ImmersiveBilingual {
         const styleElements = this.extractStyleElements(originalP);
         if (styleElements.length > 0) {
           // 尝试将翻译文本包装在相同的样式标签中
-          p.innerHTML = this.wrapTranslationWithStyles(translationText, styleElements);
+          p.innerHTML = this.wrapTranslationWithStyles(renderedText, styleElements);
         } else {
-          p.innerHTML = translationText;
+          p.innerHTML = renderedText;
         }
       } else {
-        p.innerHTML = translationText;
+        p.innerHTML = renderedText;
       }
       
       translationElement.appendChild(p);
     } else if (innerStructure.hasComplexContent) {
       // 复杂内容，尝试保持结构
-      translationElement.innerHTML = translationText;
+      translationElement.innerHTML = renderedText;
     } else {
       // 默认情况
-      translationElement.textContent = translationText;
+      translationElement.textContent = renderedText;
     }
+  }
+
+  /**
+   * 渲染简单的 Markdown 格式（链接和代码）
+   */
+  renderMarkdown(text) {
+    // 如果已经包含 HTML 标签，直接返回
+    if (text.includes('<a ') || text.includes('<code')) {
+      return text;
+    }
+    
+    let result = text;
+    
+    // 1. 渲染标准链接 [文本](链接) - 本页面打开
+    result = result.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+    
+    // 2. 渲染自动链接 <链接> - 新标签页打开
+    result = result.replace(/<(https?:\/\/[^>]+)>/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+    
+    // 3. 渲染行内代码 `代码`
+    result = result.replace(/`([^`]+)`/g, '<code>$1</code>');
+    
+    return result;
   }
 
   /**
