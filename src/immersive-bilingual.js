@@ -178,7 +178,7 @@ class ImmersiveBilingual {
         cursor: pointer;
         transition: background-color 0.2s ease;
         position: relative;
-        margin: 8px 0;
+        /* 移除固定的 margin，让内部元素保持原有间距 */
       }
       
       .bilingual-container:hover {
@@ -190,6 +190,30 @@ class ImmersiveBilingual {
         display: block;
         margin: 0;
         padding: 0;
+      }
+      
+      /* 确保翻译内容中的元素保持原有样式 */
+      .bilingual-translation > * {
+        margin: inherit !important;
+        padding: inherit !important;
+        line-height: inherit !important;
+      }
+      
+      /* 特别处理段落元素，确保段落间距正常 */
+      .bilingual-translation > p {
+        margin-bottom: 1em !important;
+        margin-top: 0 !important;
+      }
+      
+      /* 标题元素保持原有间距 */
+      .bilingual-translation > h1,
+      .bilingual-translation > h2,
+      .bilingual-translation > h3,
+      .bilingual-translation > h4,
+      .bilingual-translation > h5,
+      .bilingual-translation > h6 {
+        margin-top: 1.5em !important;
+        margin-bottom: 0.5em !important;
       }
       
       .bilingual-original {
@@ -206,7 +230,8 @@ class ImmersiveBilingual {
       .bilingual-block {
         border-left: 3px solid #007bff;
         padding-left: 12px;
-        margin: 16px 0;
+        /* 保持与原始内容相同的外边距 */
+        margin: inherit;
       }
       
       .bilingual-block .bilingual-translation {
@@ -260,6 +285,22 @@ class ImmersiveBilingual {
       .bilingual-block .bilingual-id-label {
         background: #28a745;
         top: -15px;
+      }
+      
+      /* 确保容器不会破坏原有的文档流 */
+      .bilingual-container {
+        display: block;
+      }
+      
+      /* 针对不同类型的内容元素进行优化 */
+      .bilingual-container p,
+      .bilingual-container h1,
+      .bilingual-container h2,
+      .bilingual-container h3,
+      .bilingual-container h4,
+      .bilingual-container h5,
+      .bilingual-container h6 {
+        margin: inherit;
       }
     `;
 
@@ -411,32 +452,49 @@ class ImmersiveBilingual {
     container.className = 'bilingual-container bilingual-block';
     container.setAttribute('data-trans-id', transId);
     
-    // 创建翻译元素，保持原始标签结构
+    // 创建翻译元素，尽可能保持原始标签结构和样式
     const translation = document.createElement('div');
     translation.className = 'bilingual-translation';
     
-    // 如果原始内容只有一个元素且是标题标签，保持其标签类型
+    // 智能处理翻译内容的标签结构
     if (blockContent.elements.length === 1) {
       const originalElement = blockContent.elements[0];
-      const headingTags = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6'];
       
-      if (headingTags.includes(originalElement.tagName)) {
-        // 创建相同类型的标题标签用于翻译
-        const translationElement = document.createElement(originalElement.tagName.toLowerCase());
-        translationElement.innerHTML = translationText;
-        // 复制原始元素的属性（除了内容）
-        for (const attr of originalElement.attributes) {
-          if (attr.name !== 'id') { // 避免重复 ID
-            translationElement.setAttribute(attr.name, attr.value);
-          }
+      // 创建与原始元素相同类型的翻译元素
+      const translationElement = document.createElement(originalElement.tagName.toLowerCase());
+      translationElement.innerHTML = translationText;
+      
+      // 复制原始元素的所有属性（除了可能冲突的 id）
+      for (const attr of originalElement.attributes) {
+        if (attr.name !== 'id') {
+          translationElement.setAttribute(attr.name, attr.value);
         }
-        translation.appendChild(translationElement);
-      } else {
-        // 非标题元素，保持原有逻辑
+      }
+      
+      // 复制原始元素的 class，保持样式一致
+      if (originalElement.className) {
+        translationElement.className = originalElement.className;
+      }
+      
+      translation.appendChild(translationElement);
+    } else if (blockContent.elements.length > 1) {
+      // 多个元素的情况，尝试解析翻译文本中的 HTML 标签
+      // 如果翻译文本包含 HTML 标签，直接使用；否则包装在适当的标签中
+      if (translationText.includes('<')) {
         translation.innerHTML = translationText;
+      } else {
+        // 如果翻译文本是纯文本，根据原始内容的主要标签类型来包装
+        const mainTagType = this.getMainTagType(blockContent.elements);
+        if (mainTagType) {
+          const translationElement = document.createElement(mainTagType);
+          translationElement.textContent = translationText;
+          translation.appendChild(translationElement);
+        } else {
+          translation.innerHTML = translationText;
+        }
       }
     } else {
-      // 多个元素，保持原有逻辑
+      // 没有元素的情况，直接使用翻译文本
       translation.innerHTML = translationText;
     }
     
@@ -470,6 +528,31 @@ class ImmersiveBilingual {
       e.stopPropagation();
       container.classList.toggle('show-original');
     });
+  }
+
+  /**
+   * 获取元素列表中的主要标签类型
+   */
+  getMainTagType(elements) {
+    const tagCounts = {};
+    
+    elements.forEach(el => {
+      const tagName = el.tagName.toLowerCase();
+      tagCounts[tagName] = (tagCounts[tagName] || 0) + 1;
+    });
+    
+    // 返回出现次数最多的标签类型
+    let maxCount = 0;
+    let mainTag = null;
+    
+    for (const [tag, count] of Object.entries(tagCounts)) {
+      if (count > maxCount) {
+        maxCount = count;
+        mainTag = tag;
+      }
+    }
+    
+    return mainTag;
   }
 
   /**

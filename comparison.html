@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>翻译效果对比</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            line-height: 1.6;
+        }
+        .comparison-container {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .comparison-side {
+            flex: 1;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .comparison-title {
+            background: #f8f9fa;
+            padding: 10px;
+            margin: -20px -20px 20px -20px;
+            border-radius: 8px 8px 0 0;
+            font-weight: bold;
+            text-align: center;
+        }
+        .before {
+            border-color: #dc3545;
+        }
+        .before .comparison-title {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .after {
+            border-color: #28a745;
+        }
+        .after .comparison-title {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        /* 模拟优化前的问题样式 */
+        .old-style .bilingual-translation {
+            /* 直接用 div 包装，没有保持原始标签 */
+        }
+        
+        /* 原始样式，用于对比 */
+        p {
+            margin-bottom: 1em;
+        }
+        h1, h2, h3 {
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+        }
+    </style>
+</head>
+<body>
+    <h1>翻译工具优化效果对比</h1>
+    
+    <div class="comparison-container">
+        <div class="comparison-side before">
+            <div class="comparison-title">优化前 (问题演示)</div>
+            <div class="old-style">
+                <div class="bilingual-container">
+                    <div class="bilingual-translation">JavaScript 文档</div>
+                </div>
+                <div class="bilingual-container">
+                    <div class="bilingual-translation">JavaScript 是一种为网站添加交互性的编程语言。</div>
+                </div>
+                <div class="bilingual-container">
+                    <div class="bilingual-translation">变量是存储数据值的容器。</div>
+                </div>
+            </div>
+            <p><strong>问题：</strong></p>
+            <ul>
+                <li>所有内容都被包装在 div 中</li>
+                <li>失去了原有的 h1、p 标签语义</li>
+                <li>段落间距不正常</li>
+                <li>标题样式丢失</li>
+            </ul>
+        </div>
+        
+        <div class="comparison-side after">
+            <div class="comparison-title">优化后 (保持原始结构)</div>
+            
+            <!-- trans:demo_title -->
+            <h1>JavaScript Documentation</h1>
+            <!-- trans_end:demo_title -->
+            
+            <!-- trans:demo_desc -->
+            <p>JavaScript is a programming language that adds interactivity to your website.</p>
+            <!-- trans_end:demo_desc -->
+            
+            <!-- trans:demo_variables -->
+            <p>Variables are containers for storing data values.</p>
+            <!-- trans_end:demo_variables -->
+            
+            <p><strong>优化效果：</strong></p>
+            <ul>
+                <li>✅ 保持原始标签类型 (h1, p)</li>
+                <li>✅ 保持原始样式和属性</li>
+                <li>✅ 正常的段落间距</li>
+                <li>✅ 标题样式完整保留</li>
+                <li>✅ 语义化结构不变</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div style="margin-top: 40px; padding: 20px; background: #e9ecef; border-radius: 8px;">
+        <h3>优化说明</h3>
+        <p><strong>主要改进：</strong></p>
+        <ol>
+            <li><strong>智能标签保持：</strong>翻译时创建与原始元素相同类型的标签</li>
+            <li><strong>属性复制：</strong>保持原始元素的 class、style 等属性</li>
+            <li><strong>样式继承：</strong>确保翻译内容继承原有的 CSS 样式</li>
+            <li><strong>间距优化：</strong>移除容器的固定 margin，让内部元素保持原有间距</li>
+            <li><strong>多元素处理：</strong>智能处理包含多个元素的翻译块</li>
+        </ol>
+        
+        <p><strong>点击翻译内容可以查看原文对比效果。</strong></p>
+    </div>
+
+    <script>
+        // 演示翻译数据
+        window.ImmersiveBilingualConfig = {
+            translationData: {
+                "/comparison.html": {
+                    "demo_title": "JavaScript 文档",
+                    "demo_desc": "JavaScript 是一种为网站添加交互性的编程语言。",
+                    "demo_variables": "变量是存储数据值的容器。"
+                }
+            }
+        };
+    </script>
+    
+    <!-- 引入优化后的翻译库 -->
+    <script src="dist/immersive-bilingual.min.js"></script>
+</body>
+</html>

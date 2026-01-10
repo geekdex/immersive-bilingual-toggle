@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>翻译优化测试</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            line-height: 1.6;
+        }
+        .test-section {
+            margin: 40px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-title {
+            background: #f8f9fa;
+            padding: 10px;
+            margin: -20px -20px 20px -20px;
+            border-radius: 8px 8px 0 0;
+            font-weight: bold;
+        }
+        /* 原始样式，用于对比 */
+        p {
+            margin-bottom: 1em;
+        }
+        h1, h2, h3 {
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+        }
+    </style>
+</head>
+<body>
+    <h1>翻译工具优化测试</h1>
+    
+    <div class="test-section">
+        <div class="test-title">测试1: 单个段落翻译</div>
+        
+        <!-- trans:test_paragraph -->
+        <p>This is a test paragraph to demonstrate the translation functionality. It should maintain proper spacing and formatting after translation.</p>
+        <!-- trans_end:test_paragraph -->
+        
+        <!-- trans:another_paragraph -->
+        <p>This is another paragraph that follows the first one. The spacing between paragraphs should be preserved.</p>
+        <!-- trans_end:another_paragraph -->
+    </div>
+    
+    <div class="test-section">
+        <div class="test-title">测试2: 标题翻译</div>
+        
+        <!-- trans:test_heading -->
+        <h2>Main Heading</h2>
+        <!-- trans_end:test_heading -->
+        
+        <!-- trans:sub_heading -->
+        <h3>Sub Heading</h3>
+        <!-- trans_end:sub_heading -->
+        
+        <!-- trans:heading_paragraph -->
+        <p>This paragraph follows the headings and should maintain proper spacing.</p>
+        <!-- trans_end:heading_paragraph -->
+    </div>
+    
+    <div class="test-section">
+        <div class="test-title">测试3: 混合内容翻译</div>
+        
+        <!-- trans:mixed_content -->
+        <h3>Features</h3>
+        <p>Here are the main features:</p>
+        <ul>
+            <li>Feature one</li>
+            <li>Feature two</li>
+            <li>Feature three</li>
+        </ul>
+        <!-- trans_end:mixed_content -->
+    </div>
+
+    <script>
+        // 测试翻译数据
+        window.ImmersiveBilingualConfig = {
+            translationData: {
+                "/test-optimization.html": {
+                    "test_paragraph": "这是一个测试段落，用于演示翻译功能。翻译后应该保持适当的间距和格式。",
+                    "another_paragraph": "这是跟在第一个段落后面的另一个段落。段落之间的间距应该被保留。",
+                    "test_heading": "主标题",
+                    "sub_heading": "副标题", 
+                    "heading_paragraph": "这个段落跟在标题后面，应该保持适当的间距。",
+                    "mixed_content": "<h3>功能特性</h3><p>以下是主要功能：</p><ul><li>功能一</li><li>功能二</li><li>功能三</li></ul>"
+                }
+            }
+        };
+    </script>
+    
+    <!-- 引入优化后的翻译库 -->
+    <script src="dist/immersive-bilingual.min.js"></script>
+    
+    <script>
+        // 添加一些调试信息
+        setTimeout(() => {
+            console.log('Translation initialized');
+            console.log('Bilingual containers:', document.querySelectorAll('.bilingual-container').length);
+        }, 500);
+    </script>
+</body>
+</html>
