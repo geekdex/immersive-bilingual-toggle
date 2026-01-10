@@ -7,14 +7,12 @@ class ImmersiveBilingual {
   constructor(options = {}) {
     this.options = {
       translationData: null,
-      commonTranslationData: null, // 通用翻译数据
       storageKey: 'immersive_bilingual_translations',
       ...options
     };
 
     this.allTranslationData = {};
     this.translationData = {};
-    this.commonTranslationData = {}; // 通用翻译数据
     this.initialized = false;
     this.currentRoute = this.getCurrentRoute();
 
@@ -78,9 +76,8 @@ class ImmersiveBilingual {
       this.loadCurrentRouteData();
       this.injectStyles();
       const blockCount = this.processBlockTranslations();
-      const commonCount = this.processCommonTranslations();
       this.initialized = true;
-      console.log(`Immersive Bilingual initialized successfully: ${blockCount} block translations, ${commonCount} common translations`);
+      console.log(`Immersive Bilingual initialized successfully: ${blockCount} block translations`);
     } catch (error) {
       console.error('Failed to initialize Immersive Bilingual:', error);
     }
@@ -100,11 +97,6 @@ class ImmersiveBilingual {
         console.error('Failed to load translation data from storage:', error);
       }
     }
-
-    // 加载通用翻译数据
-    if (this.options.commonTranslationData) {
-      this.commonTranslationData = this.options.commonTranslationData;
-    }
   }
 
   injectStyles() {
@@ -114,35 +106,64 @@ class ImmersiveBilingual {
         display: contents;
       }
       
-      .bilingual-translation {
+      .bilingual-original {
         display: contents;
       }
       
-      /* 确保翻译内容中的元素保持原有颜色 */
-      .bilingual-translation > * {
+      /* 确保原始内容中的元素保持原有颜色 */
+      .bilingual-original > * {
         color: inherit !important;
       }
       
-      .bilingual-original {
+      .bilingual-translation {
         display: none;
-        color: #666;
-        font-size: 0.9em;
         margin: 8px 0 16px 0;
         padding: 8px 0 12px 0;
         border-top: 1px dashed #ccc;
       }
       
-      .bilingual-container.show-original .bilingual-original {
+      /* 翻译内容保持原有结构样式，但调整颜色 */
+      .bilingual-translation > * {
+        color: #666 !important;
+      }
+      
+      /* 只对段落文本调整字体大小，标题保持原有大小 */
+      .bilingual-translation p {
+        font-size: 0.9em !important;
+      }
+      
+      /* 翻译内容中的链接保持可点击性 */
+      .bilingual-translation a {
+        color: #0066cc !important;
+        text-decoration: underline !important;
+      }
+      
+      .bilingual-container.show-translation .bilingual-translation {
         display: block;
       }
       
       /* 翻译内容中的行内代码样式 */
       .bilingual-translation code {
-        background-color: rgba(127, 127, 127, 0.15);
-        padding: 0.1em 0.3em;
-        border-radius: 3px;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-        font-size: 0.9em;
+        background-color: rgba(127, 127, 127, 0.15) !important;
+        padding: 0.1em 0.3em !important;
+        border-radius: 3px !important;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+        font-size: 0.85em !important;
+        color: #333 !important;
+      }
+      
+      /* 翻译内容中的强调文本 */
+      .bilingual-translation strong,
+      .bilingual-translation b {
+        color: #555 !important;
+      }
+      
+      /* 翻译内容中的引用块 */
+      .bilingual-translation blockquote {
+        border-left: 4px solid #ddd !important;
+        margin: 0 0 16px 0 !important;
+        padding: 0 16px !important;
+        color: #666 !important;
       }
     `;
 
@@ -243,60 +264,33 @@ class ImmersiveBilingual {
     container.className = 'bilingual-container';
     container.setAttribute('data-trans-id', transId);
     
-    // 创建翻译元素，尽可能保持原始标签结构和样式
-    const translation = document.createElement('div');
-    translation.className = 'bilingual-translation';
-    
-    // 智能处理翻译内容的标签结构
-    if (blockContent.elements.length === 1) {
-      const originalElement = blockContent.elements[0];
-      
-      // 创建与原始元素相同类型的翻译元素
-      const translationElement = document.createElement(originalElement.tagName.toLowerCase());
-      
-      // 复制原始元素的所有属性（除了可能冲突的 id）
-      for (const attr of originalElement.attributes) {
-        if (attr.name !== 'id') {
-          translationElement.setAttribute(attr.name, attr.value);
-        }
-      }
-      
-      // 复制原始元素的 class，保持样式一致
-      if (originalElement.className) {
-        translationElement.className = originalElement.className;
-      }
-      
-      // 智能处理翻译文本内容，保持内部结构
-      this.setTranslationContent(translationElement, originalElement, translationText);
-      
-      translation.appendChild(translationElement);
-    } else if (blockContent.elements.length > 1) {
-      // 多个元素的情况，尝试解析翻译文本中的 HTML 标签
-      // 如果翻译文本包含 HTML 标签，直接使用；否则包装在适当的标签中
-      if (translationText.includes('<')) {
-        translation.innerHTML = translationText;
-      } else {
-        // 如果翻译文本是纯文本，根据原始内容的主要标签类型来包装
-        const mainTagType = this.getMainTagType(blockContent.elements);
-        if (mainTagType) {
-          const translationElement = document.createElement(mainTagType);
-          translationElement.textContent = translationText;
-          translation.appendChild(translationElement);
-        } else {
-          translation.innerHTML = translationText;
-        }
-      }
-    } else {
-      // 没有元素的情况，直接使用翻译文本
-      translation.innerHTML = translationText;
-    }
-    
+    // 创建原始内容元素（默认显示，保持原有结构）
     const original = document.createElement('div');
     original.className = 'bilingual-original';
     original.innerHTML = blockContent.htmlContent;
     
-    container.appendChild(translation);
+    // 创建翻译元素（默认隐藏，显示在下方）
+    const translation = document.createElement('div');
+    translation.className = 'bilingual-translation';
+    
+    // 复制原始HTML结构，但替换文本内容为翻译
+    if (blockContent.elements.length === 1) {
+      // 单个元素的情况，克隆结构并替换文本
+      const originalElement = blockContent.elements[0];
+      const translationElement = originalElement.cloneNode(true);
+      
+      // 替换所有文本节点的内容
+      this.replaceTextContent(translationElement, translationText);
+      
+      translation.appendChild(translationElement);
+    } else {
+      // 多个元素的情况，直接使用翻译文本
+      translation.innerHTML = translationText;
+    }
+    
+    // 先添加原始内容，再添加翻译内容
     container.appendChild(original);
+    container.appendChild(translation);
     
     startComment.parentNode.insertBefore(container, startComment);
     
@@ -310,415 +304,68 @@ class ImmersiveBilingual {
     
     container.addEventListener('click', (e) => {
       e.stopPropagation();
-      container.classList.toggle('show-original');
+      container.classList.toggle('show-translation');
     });
   }
 
-  /**
-   * 检查是否只包含简单的 Markdown 渲染 HTML（链接、代码）
-   */
-  isSimpleMarkdownHTML(html) {
-    // 移除简单的 Markdown 标签，看是否还有其他 HTML
-    const withoutSimpleTags = html
-      .replace(/<\/?a[^>]*>/g, '')
-      .replace(/<\/?code[^>]*>/g, '');
-    
-    // 如果移除简单标签后不再包含 HTML，说明只是简单的 Markdown
-    return !withoutSimpleTags.includes('<');
-  }
-
-  /**
-   * 获取元素列表中的主要标签类型
-   */
-  getMainTagType(elements) {
-    const tagCounts = {};
-    
-    elements.forEach(el => {
-      const tagName = el.tagName.toLowerCase();
-      tagCounts[tagName] = (tagCounts[tagName] || 0) + 1;
-    });
-    
-    // 返回出现次数最多的标签类型
-    let maxCount = 0;
-    let mainTag = null;
-    
-    for (const [tag, count] of Object.entries(tagCounts)) {
-      if (count > maxCount) {
-        maxCount = count;
-        mainTag = tag;
-      }
-    }
-    
-    return mainTag;
-  }
-
-  /**
-   * 智能设置翻译内容，保持内部结构
-   */
-  setTranslationContent(translationElement, originalElement, translationText) {
-    // 先渲染 Markdown 格式（链接和代码）
-    const renderedText = this.renderMarkdown(translationText);
-    
-    // 分析原始元素的内部结构
-    const innerStructure = this.analyzeInnerStructure(originalElement);
-    
-    // 如果翻译文本包含复杂 HTML 标签（不仅仅是 Markdown 渲染的简单标签），直接使用
-    const hasComplexHTML = renderedText.includes('<') && 
-      !this.isSimpleMarkdownHTML(renderedText);
-    
-    if (hasComplexHTML) {
-      translationElement.innerHTML = renderedText;
+  // 递归替换元素中的文本内容，保持HTML结构
+  replaceTextContent(element, newText) {
+    // 如果新文本包含HTML标签，直接设置innerHTML
+    if (newText.includes('<')) {
+      element.innerHTML = newText;
       return;
     }
     
-    if (innerStructure.hasSimpleTextContent) {
-      // 简单文本内容，直接设置
-      translationElement.innerHTML = renderedText;
-    } else if (innerStructure.hasParagraphs) {
-      // 包含段落结构，创建相应的 p 标签并保持内部样式
-      const p = document.createElement('p');
-      
-      // 复制原始 p 标签的属性
-      const originalP = originalElement.querySelector('p');
-      if (originalP) {
-        for (const attr of originalP.attributes) {
-          if (attr.name !== 'id') {
-            p.setAttribute(attr.name, attr.value);
-          }
-        }
-        if (originalP.className) {
-          p.className = originalP.className;
-        }
-        
-        // 检查原始 p 标签内是否有样式标签（如 strong, em, code 等）
-        const styleElements = this.extractStyleElements(originalP);
-        if (styleElements.length > 0) {
-          // 尝试将翻译文本包装在相同的样式标签中
-          p.innerHTML = this.wrapTranslationWithStyles(renderedText, styleElements);
-        } else {
-          p.innerHTML = renderedText;
-        }
-      } else {
-        p.innerHTML = renderedText;
-      }
-      
-      translationElement.appendChild(p);
-    } else if (innerStructure.hasListItems) {
-      // 包含列表项结构，创建相应的 li 标签
-      const firstLi = originalElement.querySelector('li');
-      if (firstLi) {
-        // 创建新的 li 元素，保持原有属性
-        const newLi = firstLi.cloneNode(false);
-        // 先渲染 Markdown，然后尝试保持原文的文本格式
-        const formattedText = this.formatTextLikeOriginal(firstLi.innerHTML, renderedText);
-        newLi.innerHTML = formattedText;
-        translationElement.appendChild(newLi);
-      } else {
-        translationElement.innerHTML = renderedText;
-      }
-    } else if (innerStructure.hasComplexContent) {
-      // 复杂内容，尝试保持结构
-      this.preserveComplexStructure(translationElement, originalElement, renderedText);
-    } else {
-      // 默认情况
-      translationElement.innerHTML = renderedText;
-    }
-  }
-
-  /**
-   * 保持复杂结构（如带链接的标题、列表等）
-   */
-  preserveComplexStructure(translationElement, originalElement, translationText) {
-    const tagName = originalElement.tagName.toLowerCase();
-    
-    // 处理标题标签（可能包含链接）
-    if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(tagName)) {
-      const headerLink = originalElement.querySelector('a.header');
-      if (headerLink) {
-        // 保持原有的链接结构
-        const newLink = headerLink.cloneNode(false); // 只复制标签和属性，不复制内容
-        newLink.textContent = translationText;
-        translationElement.appendChild(newLink);
-      } else {
-        translationElement.innerHTML = translationText;
-      }
-    }
-    // 处理列表标签
-    else if (tagName === 'ul' || tagName === 'ol') {
-      const firstLi = originalElement.querySelector('li');
-      if (firstLi) {
-        // 创建新的 li 元素，保持原有属性
-        const newLi = firstLi.cloneNode(false);
-        newLi.innerHTML = translationText;
-        translationElement.appendChild(newLi);
-      } else {
-        translationElement.innerHTML = translationText;
-      }
-    }
-    // 其他复杂结构
-    else {
-      translationElement.innerHTML = translationText;
-    }
-  }
-
-  /**
-   * 尝试让翻译文本的格式匹配原文
-   */
-  formatTextLikeOriginal(originalHTML, translationText) {
-    // 如果翻译文本已经包含 HTML 标签，直接返回
-    if (translationText.includes('<')) {
-      return translationText;
+    // 移除ID属性，避免重复ID
+    if (element.id) {
+      element.removeAttribute('id');
     }
     
-    // 检查原文是否有换行或多个句子结构
-    const hasLineBreaks = originalHTML.includes('\n') || originalHTML.includes('<br');
-    const hasMultipleSentences = (originalHTML.match(/[.!?]/g) || []).length > 1;
+    // 递归处理所有子元素，移除ID
+    const elementsWithId = element.querySelectorAll('[id]');
+    elementsWithId.forEach(el => {
+      el.removeAttribute('id');
+    });
     
-    if (hasLineBreaks || hasMultipleSentences) {
-      let formatted = translationText;
-      
-      // 对于较长的中文文本，在适当位置添加换行
-      if (formatted.length > 50) {
-        // 在中文标点符号后添加换行，但避免在句子开头或结尾
-        formatted = formatted.replace(/([，。；！？])\s*/g, (match, punct) => {
-          // 如果标点符号后面还有内容，添加换行
-          const index = translationText.indexOf(match);
-          if (index < translationText.length - match.length) {
-            return punct + '\n';
-          }
-          return punct;
-        });
-        
-        // 清理多余的换行
-        formatted = formatted.replace(/\n+/g, '\n').trim();
-      }
-      
-      return formatted;
-    }
+    // 移除链接的href属性中的锚点引用
+    const links = element.querySelectorAll('a[href^="#"]');
+    links.forEach(link => {
+      link.removeAttribute('href');
+    });
     
-    return translationText;
-  }
-
-  /**
-   * 渲染简单的 Markdown 格式（链接和代码）
-   */
-  renderMarkdown(text) {
-    // 如果已经包含 HTML 标签，直接返回
-    if (text.includes('<a ') || text.includes('<code')) {
-      return text;
-    }
-    
-    let result = text;
-    
-    // 1. 渲染标准链接 [文本](链接) - 本页面打开
-    result = result.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
-    
-    // 2. 渲染自动链接 <链接> - 新标签页打开
-    result = result.replace(/<(https?:\/\/[^>]+)>/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
-    
-    // 3. 渲染行内代码 `代码`
-    result = result.replace(/`([^`]+)`/g, '<code>$1</code>');
-    
-    return result;
-  }
-
-  /**
-   * 提取元素中的样式标签
-   */
-  extractStyleElements(element) {
-    const styleElements = [];
-    const styleTagNames = ['strong', 'b', 'em', 'i', 'code', 'kbd', 'mark', 'small', 'sub', 'sup', 'u', 's', 'del', 'ins'];
-    
-    // 递归查找所有样式标签
-    const findStyleElements = (el) => {
-      for (const child of el.children) {
-        if (styleTagNames.includes(child.tagName.toLowerCase())) {
-          styleElements.push({
-            tagName: child.tagName.toLowerCase(),
-            className: child.className,
-            attributes: Array.from(child.attributes).reduce((acc, attr) => {
-              if (attr.name !== 'id') {
-                acc[attr.name] = attr.value;
-              }
-              return acc;
-            }, {})
-          });
-        }
-        findStyleElements(child);
-      }
-    };
-    
-    findStyleElements(element);
-    return styleElements;
-  }
-
-  /**
-   * 将翻译文本包装在样式标签中
-   */
-  wrapTranslationWithStyles(translationText, styleElements) {
-    if (styleElements.length === 0) {
-      return translationText;
-    }
-    
-    // 对于简单情况，如果只有一个样式标签，直接包装
-    if (styleElements.length === 1) {
-      const style = styleElements[0];
-      let attrs = '';
-      
-      // 构建属性字符串
-      for (const [name, value] of Object.entries(style.attributes)) {
-        attrs += ` ${name}="${value}"`;
-      }
-      
-      return `<${style.tagName}${attrs}>${translationText}</${style.tagName}>`;
-    }
-    
-    // 对于多个样式标签，嵌套包装（最常见的是 strong 包含其他标签）
-    let result = translationText;
-    for (let i = styleElements.length - 1; i >= 0; i--) {
-      const style = styleElements[i];
-      let attrs = '';
-      
-      for (const [name, value] of Object.entries(style.attributes)) {
-        attrs += ` ${name}="${value}"`;
-      }
-      
-      result = `<${style.tagName}${attrs}>${result}</${style.tagName}>`;
-    }
-    
-    return result;
-  }
-
-  /**
-   * 分析元素的内部结构
-   */
-  analyzeInnerStructure(element) {
-    const children = Array.from(element.children);
-    const textNodes = Array.from(element.childNodes).filter(node => 
-      node.nodeType === Node.TEXT_NODE && node.textContent.trim()
+    // 查找所有文本节点并替换
+    const walker = document.createTreeWalker(
+      element,
+      NodeFilter.SHOW_TEXT,
+      null,
+      false
     );
     
-    return {
-      hasSimpleTextContent: children.length === 0 && textNodes.length > 0,
-      hasParagraphs: children.some(child => child.tagName === 'P'),
-      hasListItems: children.some(child => child.tagName === 'LI'),
-      hasComplexContent: children.length > 1 || 
-        (children.length === 1 && children[0].children.length > 0),
-      mainChildTag: children.length === 1 ? children[0].tagName.toLowerCase() : null
-    };
-  }
-
-  /**
-   * 处理通用翻译（没有翻译标签的元素）
-   */
-  processCommonTranslations() {
-    if (!this.commonTranslationData || Object.keys(this.commonTranslationData).length === 0) {
-      return 0;
-    }
-
-    let processedCount = 0;
-
-    // 获取所有可能的文本元素，转换为数组以避免实时更新问题
-    // 移除 LI 避免匹配到包含子菜单的列表项
-    const elements = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6, p, span, a, td, th'));
-    
-    // 收集需要处理的元素和翻译
-    const toProcess = [];
-    
-    for (const element of elements) {
-      // 跳过已处理的双语容器及其子元素
-      if (element.closest('.bilingual-container')) {
-        continue;
+    const textNodes = [];
+    let node;
+    while (node = walker.nextNode()) {
+      if (node.textContent.trim()) {
+        textNodes.push(node);
       }
+    }
+    
+    // 如果只有一个文本节点，直接替换
+    if (textNodes.length === 1) {
+      textNodes[0].textContent = newText;
+    } else if (textNodes.length > 1) {
+      // 多个文本节点，将翻译文本设置到第一个主要文本节点
+      const mainTextNode = textNodes.find(node => node.textContent.trim().length > 10) || textNodes[0];
+      mainTextNode.textContent = newText;
       
-      // 跳过不合适的元素
-      if (!this.isValidTranslationTarget(element)) {
-        continue;
-      }
-      
-      // 获取元素的纯文本内容
-      const text = element.textContent.trim();
-      
-      // 查找匹配的通用翻译
-      const result = this.findCommonTranslation(text);
-      if (result) {
-        toProcess.push({ element, text, ...result });
-      }
+      // 清空其他文本节点
+      textNodes.forEach(node => {
+        if (node !== mainTextNode) {
+          node.textContent = '';
+        }
+      });
     }
-    
-    // 批量处理收集到的元素
-    for (const item of toProcess) {
-      this.createCommonBilingualElement(item.element, item.key, item.translation, item.isPartial);
-      processedCount++;
-    }
-
-    return processedCount;
   }
 
-  /**
-   * 查找通用翻译
-   */
-  findCommonTranslation(text) {
-    // 直接匹配
-    if (this.commonTranslationData[text]) {
-      return { key: text, translation: this.commonTranslationData[text] };
-    }
-
-    // 模糊匹配（忽略大小写和前后空格）
-    const normalizedText = text.toLowerCase().trim();
-    for (const [key, value] of Object.entries(this.commonTranslationData)) {
-      if (key.toLowerCase().trim() === normalizedText) {
-        return { key, translation: value };
-      }
-    }
-
-    // 部分匹配：检查文本是否包含翻译键
-    for (const [key, value] of Object.entries(this.commonTranslationData)) {
-      if (text.includes(key)) {
-        return { key, translation: value, isPartial: true };
-      }
-    }
-
-    return null;
-  }
-
-  /**
-   * 判断元素是否适合作为翻译目标
-   */
-  isValidTranslationTarget(element) {
-    const validTags = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'P', 'SPAN', 'A', 'TD', 'TH'];
-    const skipTags = ['BUTTON', 'INPUT', 'SELECT', 'TEXTAREA', 'SCRIPT', 'STYLE', 'CODE', 'PRE'];
-    
-    // 基本检查
-    if (!validTags.includes(element.tagName) || skipTags.includes(element.tagName)) {
-      return false;
-    }
-    
-    // 跳过已处理的容器
-    if (element.classList?.contains('bilingual-container')) {
-      return false;
-    }
-    
-    // 确保不是空元素
-    if (!element.textContent.trim()) {
-      return false;
-    }
-    
-    // 跳过包含复杂内容的元素
-    if (element.querySelector('img, video, audio, canvas, svg')) {
-      return false;
-    }
-    
-    return true;
-  }
-
-  /**
-   * 创建通用翻译（直接替换文本，不创建双语容器）
-   */
-  createCommonBilingualElement(element, originalKey, translationText, isPartial = false) {
-    // 统一使用 innerHTML.replace 保留原始 HTML 结构
-    element.innerHTML = element.innerHTML.replace(originalKey, translationText);
-  }
   setAllTranslationData(data, save = true) {
     this.allTranslationData = data;
     this.loadCurrentRouteData();
@@ -760,14 +407,7 @@ if (typeof window !== 'undefined') {
   
   const autoInit = () => {
     if (window.ImmersiveBilingualConfig && !window.bilingualInstance) {
-      // 处理通用翻译数据
-      const config = { ...window.ImmersiveBilingualConfig };
-      if (config.commonTanslationData) {
-        config.commonTranslationData = config.commonTanslationData;
-        delete config.commonTanslationData; // 删除拼写错误的键名
-      }
-      
-      window.bilingualInstance = new ImmersiveBilingual(config);
+      window.bilingualInstance = new ImmersiveBilingual(window.ImmersiveBilingualConfig);
     }
   };
   
