@@ -111,35 +111,16 @@ class ImmersiveBilingual {
     const styles = `
       .bilingual-container {
         cursor: pointer;
+        display: contents;
       }
       
       .bilingual-translation {
-        display: block;
+        display: contents;
       }
       
-      /* 确保翻译内容中的元素保持原有样式和颜色 */
+      /* 确保翻译内容中的元素保持原有颜色 */
       .bilingual-translation > * {
-        margin: inherit !important;
-        padding: inherit !important;
-        line-height: inherit !important;
         color: inherit !important;
-      }
-      
-      /* 特别处理段落元素，确保段落间距正常 */
-      .bilingual-translation > p {
-        margin-bottom: 1em !important;
-        margin-top: 0 !important;
-      }
-      
-      /* 标题元素保持原有间距 */
-      .bilingual-translation > h1,
-      .bilingual-translation > h2,
-      .bilingual-translation > h3,
-      .bilingual-translation > h4,
-      .bilingual-translation > h5,
-      .bilingual-translation > h6 {
-        margin-top: 1.5em !important;
-        margin-bottom: 0.5em !important;
       }
       
       .bilingual-original {
@@ -153,22 +134,6 @@ class ImmersiveBilingual {
       
       .bilingual-container.show-original .bilingual-original {
         display: block;
-      }
-      
-      /* 确保容器不会破坏原有的文档流 */
-      .bilingual-container {
-        display: block;
-      }
-      
-      /* 针对不同类型的内容元素进行优化 */
-      .bilingual-container p,
-      .bilingual-container h1,
-      .bilingual-container h2,
-      .bilingual-container h3,
-      .bilingual-container h4,
-      .bilingual-container h5,
-      .bilingual-container h6 {
-        margin: inherit;
       }
     `;
 
